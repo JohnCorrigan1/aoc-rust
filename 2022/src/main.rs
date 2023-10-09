@@ -6,6 +6,7 @@ use lib::day5::day5;
 use lib::day6::day6;
 use lib::day7::day7;
 use lib::day8::day8;
+use lib::day9::day9;
 
 fn main() {
     day1::run();
@@ -16,4 +17,5 @@ fn main() {
     let _ = day6::run();
     let _ = day7::run();
     let _ = day8::run();
+    let _ = day9::run();
 }
