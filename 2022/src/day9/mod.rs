@@ -16,13 +16,13 @@ pub mod day9 {
         L,
     }
 
-    impl From<char> for Direction {
-        fn from(value: char) -> Self {
+    impl From<&str> for Direction {
+        fn from(value: &str) -> Self {
             match value {
-                'U' => Direction::U,
-                'D' => Direction::D,
-                'R' => Direction::R,
-                'L' => Direction::L,
+                "U" => Direction::U,
+                "D" => Direction::D,
+                "R" => Direction::R,
+                "L" => Direction::L,
                 _ => panic!("Invalid input"),
             }
         }
@@ -37,9 +37,10 @@ pub mod day9 {
         let mut game: Vec<Round> = vec![];
 
         for line in contents {
-            let round: Vec<char> = line.trim().chars().collect();
+            //let round: Vec<char> = line.trim().chars().collect();
+            let round: Vec<&str> = line.trim().split(" ").collect();
 
-            if let Some(moves) = round[2].to_digit(10) {
+            if let Some(moves) = round[1].parse::<u32>().ok() {
                 let direction: Direction = round[0].into();
                 game.push(Round { direction, moves });
             }
@@ -55,52 +56,32 @@ pub mod day9 {
 
     fn q1(game: &Vec<Round>) -> u32 {
         let mut visited: HashMap<(i32, i32), (i32, i32)> = HashMap::new();
-        //start point
         visited.insert((0, 0), (0, 0));
 
         let mut head_position: (i32, i32) = (0, 0);
         let mut tail_position: (i32, i32) = (0, 0);
 
         for round in game {
-            match round.direction {
-                Direction::U => up(
+            for _i in 0..round.moves {
+                move_me(
                     &mut head_position,
                     &mut tail_position,
-                    round.moves,
                     &mut visited,
-                ),
-                Direction::D => down(
-                    &mut head_position,
-                    &mut tail_position,
-                    round.moves,
-                    &mut visited,
-                ),
-                Direction::R => right(
-                    &mut head_position,
-                    &mut tail_position,
-                    round.moves,
-                    &mut visited,
-                ),
-                Direction::L => left(
-                    &mut head_position,
-                    &mut tail_position,
-                    round.moves,
-                    &mut visited,
-                ),
+                    &round.direction,
+                );
             }
         }
-        //        for (key, _value) in visited.iter() {
-        //            println!("{}:{}", key.0, key.1);
-        //       }
+        // for (key, _value) in visited.iter() {
+        //     println!("{}:{}", key.0, key.1);
+        // }
         visited.len() as u32
     }
 
     fn move_me(
         head_position: &mut (i32, i32),
         tail_position: &mut (i32, i32),
-        moves: u32,
         visited: &mut HashMap<(i32, i32), (i32, i32)>,
-        direction: Direction,
+        direction: &Direction,
     ) -> () {
         match direction {
             Direction::U => head_position.0 -= 1,
@@ -112,117 +93,23 @@ pub mod day9 {
         if needs_move(&head_position, &tail_position) {
             match direction {
                 Direction::U => {
-                    if head_position.1 == tail_position.1 {
-                        tail_position.0 -= 1;
-                    } else {
-                        tail_position.0 = head_position.0 + 1;
-                        tail_position.1 = head_position.1;
-                    }
-                }
-                Direction::D => {
-                    if head_position.1 == tail_position.1 {
-                        tail_position.0 += 1;
-                    } else {
-                        tail_position.0 = head_position.0 - 1;
-                        tail_position.1 = head_position.1;
-                    }
-                }
-                Direction::R => {
-                    if head_position.0 == tail_position.0 {
-                        tail_position.1 += 1;
-                    } else {
-                        tail_position.1 = head_position.1 - 1;
-                        tail_position.0 = head_position.0;
-                    }
-                }
-
-                Direction::L => {
-                    if head_position.0 == tail_position.0 {
-                        tail_position.1 -= 1;
-                    } else {
-                        tail_position.1 = head_position.1 + 1;
-                        tail_position.0 = head_position.0;
-                    }
-                }
-            }
-            insert_visited(visited, &tail_position);
-        }
-    }
-
-    fn up(
-        head_position: &mut (i32, i32),
-        tail_position: &mut (i32, i32),
-        moves: u32,
-        visited: &mut HashMap<(i32, i32), (i32, i32)>,
-    ) -> () {
-        for _i in 0..moves {
-            head_position.0 -= 1;
-            if needs_move(&head_position, &tail_position) {
-                if head_position.1 == tail_position.1 {
-                    tail_position.0 -= 1;
-                } else {
                     tail_position.0 = head_position.0 + 1;
                     tail_position.1 = head_position.1;
                 }
-                insert_visited(visited, &tail_position);
-            }
-        }
-    }
-    fn down(
-        head_position: &mut (i32, i32),
-        tail_position: &mut (i32, i32),
-        moves: u32,
-        visited: &mut HashMap<(i32, i32), (i32, i32)>,
-    ) -> () {
-        for _i in 0..moves {
-            head_position.0 += 1;
-            if needs_move(&head_position, &tail_position) {
-                if head_position.1 == tail_position.1 {
-                    tail_position.0 += 1;
-                } else {
+                Direction::D => {
                     tail_position.0 = head_position.0 - 1;
                     tail_position.1 = head_position.1;
                 }
-                insert_visited(visited, &tail_position);
-            }
-        }
-    }
-    fn right(
-        head_position: &mut (i32, i32),
-        tail_position: &mut (i32, i32),
-        moves: u32,
-        visited: &mut HashMap<(i32, i32), (i32, i32)>,
-    ) -> () {
-        for _i in 0..moves {
-            head_position.1 += 1;
-            if needs_move(&head_position, &tail_position) {
-                if head_position.0 == tail_position.0 {
-                    tail_position.1 += 1;
-                } else {
+                Direction::R => {
                     tail_position.1 = head_position.1 - 1;
                     tail_position.0 = head_position.0;
                 }
-                insert_visited(visited, &tail_position);
-            }
-        }
-    }
-    fn left(
-        head_position: &mut (i32, i32),
-        tail_position: &mut (i32, i32),
-        moves: u32,
-        visited: &mut HashMap<(i32, i32), (i32, i32)>,
-    ) -> () {
-        for _i in 0..moves {
-            head_position.1 -= 1;
-            if needs_move(&head_position, &tail_position) {
-                if head_position.0 == tail_position.0 {
-                    tail_position.1 -= 1;
-                } else {
+                Direction::L => {
                     tail_position.1 = head_position.1 + 1;
                     tail_position.0 = head_position.0;
                 }
-                insert_visited(visited, &tail_position);
             }
+            insert_visited(visited, &tail_position);
         }
     }
 
