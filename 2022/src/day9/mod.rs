@@ -30,16 +30,12 @@ pub mod day9 {
 
     pub fn run() -> Result<(), Error> {
         let contents = fs::read_to_string("src/day9/input.txt")?;
-        //let contents = fs::read_to_string("src/day9/test.txt")?;
-
         let contents: Vec<&str> = contents.lines().collect();
 
         let mut game: Vec<Round> = vec![];
 
         for line in contents {
-            //let round: Vec<char> = line.trim().chars().collect();
             let round: Vec<&str> = line.trim().split(" ").collect();
-
             if let Some(moves) = round[1].parse::<u32>().ok() {
                 let direction: Direction = round[0].into();
                 game.push(Round { direction, moves });
@@ -71,9 +67,6 @@ pub mod day9 {
                 );
             }
         }
-        // for (key, _value) in visited.iter() {
-        //     println!("{}:{}", key.0, key.1);
-        // }
         visited.len() as u32
     }
 
@@ -90,7 +83,9 @@ pub mod day9 {
             Direction::L => head_position.1 -= 1,
         }
 
-        if needs_move(&head_position, &tail_position) {
+        if head_position.0.abs_diff(tail_position.0) > 1
+            || head_position.1.abs_diff(tail_position.1) > 1
+        {
             match direction {
                 Direction::U => {
                     tail_position.0 = head_position.0 + 1;
@@ -109,21 +104,7 @@ pub mod day9 {
                     tail_position.0 = head_position.0;
                 }
             }
-            insert_visited(visited, &tail_position);
+            visited.entry(*tail_position).or_insert(*tail_position);
         }
-    }
-
-    fn needs_move(head_position: &(i32, i32), tail_position: &(i32, i32)) -> bool {
-        if head_position.0.abs_diff(tail_position.0) > 1
-            || head_position.1.abs_diff(tail_position.1) > 1
-        {
-            true
-        } else {
-            false
-        }
-    }
-
-    fn insert_visited(visited: &mut HashMap<(i32, i32), (i32, i32)>, position: &(i32, i32)) -> () {
-        visited.entry(*position).or_insert(*position);
     }
 }
